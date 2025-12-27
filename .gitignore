@@ -1,0 +1,12 @@
+# C++
+build/
+*.o
+*.out
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS
+.DS_Store
