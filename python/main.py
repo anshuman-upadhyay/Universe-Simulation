@@ -110,6 +110,7 @@ def main():
 
         # Update physics
         body.update(dt)
+        body.handle_boundary_collision(C.WIDTH, C.HEIGHT)
 
 
         #Motion Damping

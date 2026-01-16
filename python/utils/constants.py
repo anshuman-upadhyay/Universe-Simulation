@@ -26,7 +26,7 @@ ORANGE  = (255, 165, 0)
 PURPLE  = (128, 0, 128)
 
 # Simulation / UI friendly colors
-BACKGROUND_COLOR = (10, 10, 20)      # dark space-like background
+BACKGROUND_COLOR = (14,0,53)      # dark space-like background
 GRID_COLOR       = (40, 40, 60)
 TEXT_COLOR       = WHITE
 ACCENT_COLOR     = CYAN
