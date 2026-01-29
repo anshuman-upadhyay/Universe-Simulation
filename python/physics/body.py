@@ -1,10 +1,11 @@
 class Body :
-    def __init__(self,position,velocity,mass,radius,color): 
+    def __init__(self,position,velocity,mass,radius,color,body_id): 
         self.position = position
         self.velocity = velocity 
         self.mass = mass 
         self.radius =radius 
-        self.color = color 
+        self.color = color
+        self.id = body_id 
     #Positional changes 
     def update(self,dt) :
         #Changing the xy coordinates of using the veloctiy and delta time 
