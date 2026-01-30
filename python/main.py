@@ -1,21 +1,30 @@
+import math
+import random
 import pygame
+import utils.constants as C
 from renderer.window import create_window
 from renderer.draw import clear_screen, draw_body,draw_active_shadow
-import utils.constants as C
 from physics.body import Body
 from physics.collision import resolve_body_collision
+from physics.gravity import apply_gravity
+from simulation.preset1 import spawn_system
+
 # ---------------- Global Variables----------------
+gravity_enabled = True
+paused =False 
 is_dragging = False
 drag_offset = [0.0,0.0]
 active_body = None
 body_counter = 0
 THROW_STRENGTH = 50
 BAT_FORCE = 1200
-DAMPING_COEFF = 1
+DAMPING_COEFF = 0.98
 # ---------------- Event handling ----------------
 def handle_events(bodies,dt):
-    #Mouse grabbing 
-    global is_dragging, drag_offset,active_body,body_counter,THROW_STRENGTH,BAT_FORCE,DAMPING_COEFF
+    global is_dragging, drag_offset,active_body
+    global body_counter,gravity_enabled,paused
+    global THROW_STRENGTH,BAT_FORCE,DAMPING_COEFF
+
     #Event selection 
     for event in pygame.event.get():
         #Over simulation
@@ -26,19 +35,46 @@ def handle_events(bodies,dt):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_n :
             mouse_x,mouse_y = pygame.mouse.get_pos()
             body_counter += 1
+            
+            #Weighted choice (most small, few large)
+            material_name = random.choices(
+                population=list(C.MATERIALS.keys()),
+                weights=[60,25,10,5], #For hierarchy 
+                k=1 
+            )[0]
+            #Random mass and radius will be in relation to mass
+            material = C.MATERIALS[material_name]
+            radius = random.randint(8,50)
+            density = material["density"]
+            mass = density *math.pi* (radius**2)
+
             new_body = Body(
                     position=[mouse_x,mouse_y],
                     velocity=[0.0,0.0],
-                    mass=10,
-                    radius=15,
-                    color=C.WHITE,
+                    mass=mass,
+                    radius=radius,
+                    color=material["color"],
                     body_id=body_counter
                     )
             bodies.append(new_body) 
             #Set the active default body the latest one
             active_body=new_body
             is_dragging=False  
+        
+        #Game controls over gravity and pausing the game 
+        if event.type == pygame.KEYDOWN :
+            if event.key == pygame.K_g :
+                gravity_enabled = not gravity_enabled
             
+            if event.key == pygame.K_SPACE :
+                paused = not paused
+
+        #Solar system spawning
+        if event.type == pygame.KEYDOWN :
+            if event.key == pygame.K_z :
+                mouse_x,mouse_y = pygame.mouse.get_pos()
+                spawn_system(bodies,[mouse_x,mouse_y])
+
 
         #Trackpad control
 
@@ -127,23 +163,31 @@ def main():
         #Loop control variable
         running = handle_events(bodies,dt)
 
-        for body in bodies :
-            body.update(dt)# Update physics  
-         #Body-body collisions
-        for i in range(len(bodies)) :
-            for j in range(i+1,len(bodies)) :
-                resolve_body_collision(bodies[i],bodies[j])
+        if not paused :
+            #Apply mutual gravity 
+            if gravity_enabled :
+                for i in range(len(bodies)):
+                    for j in range(i+1,len(bodies)):
+                        apply_gravity(bodies[i],bodies[j],C.G,dt)
 
-        #Boundary + damping
-        for body in bodies :
-            body.handle_boundary_collision(C.WIDTH,C.HEIGHT)
-            body.velocity[0] *= DAMPING_COEFF
-            body.velocity[1] *= DAMPING_COEFF
+            # Update physics  
+            for body in bodies :
+                body.update(dt)
 
+            #Body-body collisions
+            for i in range(len(bodies)) :
+                for j in range(i+1,len(bodies)) :
+                    resolve_body_collision(bodies[i],bodies[j])
 
+            #Boundary + damping
+            for body in bodies :
+                body.handle_boundary_collision(C.WIDTH,C.HEIGHT)
+                body.velocity[0] *= DAMPING_COEFF
+                body.velocity[1] *= DAMPING_COEFF
 
         # Render
         clear_screen(screen, C.BACKGROUND_COLOR)
+
         #Handle n bodies 
         font=pygame.font.SysFont(None,18)
         for body in bodies :
@@ -151,6 +195,17 @@ def main():
                 draw_active_shadow(screen,body)
             draw_body(screen,body,font)
 
+
+        #State of the game 
+        # PAUSED    
+        if paused :
+             paused_text = font.render("PAUSED", True,(255,80,80))
+             screen.blit(paused_text,(10,10))
+            
+        #Gravity state :
+        if not gravity_enabled: 
+            grav_text = font.render("GRAVITY OFF",True,(80,180,255))
+            screen.blit(grav_text,(10,30))
 
         pygame.display.flip()
 

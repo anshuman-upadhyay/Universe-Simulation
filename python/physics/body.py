@@ -60,6 +60,7 @@ velocity : [vx, vy]
 mass     : float
 radius   : int
 color    : (R, G, B)
+id       : int
 """
 
 

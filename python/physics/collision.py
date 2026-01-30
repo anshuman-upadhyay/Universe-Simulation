@@ -4,14 +4,18 @@ import math
 
 
 #Elastic collisions between two bodies(circular)
-def resolve_body_collision(body_a,body_b,restitution=0.9):
+def resolve_body_collision(body_a,body_b,restitution=0.6):
+    restitution = max(0.0, min(restitution,1.0))
+
     dx = body_b.position[0] - body_a.position[0]
     dy = body_b.position[1] - body_a.position[1]
     distance = math.hypot(dx,dy)
 
     #Avoid division by 0 
     if distance == 0 :
-        return 
+        dx = 1e-6
+        dy = 0 
+        distance = 1e-6
     # Overlap check :
     overlap= body_a.radius + body_b.radius - distance
     if overlap <= 0 :
@@ -21,11 +25,12 @@ def resolve_body_collision(body_a,body_b,restitution=0.9):
     nx = dx/distance
     ny = dy/distance
 
-    #Separate bodies (Correction in positions)
-    body_a.position[0] -= nx*overlap / 2
-    body_a.position[1] -= ny*overlap / 2
-    body_b.position[0] += nx*overlap / 2
-    body_b.position[1] += ny*overlap / 2
+    #Mass weight positional correction
+    total_mass= body_a.mass + body_b.mass
+    body_a.position[0] -= nx*overlap *(body_b.mass/total_mass)
+    body_a.position[1] -= ny*overlap *(body_b.mass/total_mass)
+    body_b.position[0] += nx*overlap *(body_a.mass/total_mass)
+    body_b.position[1] += ny*overlap *(body_a.mass/total_mass)
     
     #Relative Velocity
     rvx = body_b.velocity[0] - body_a.velocity[0]

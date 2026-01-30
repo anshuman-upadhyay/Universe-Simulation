@@ -24,6 +24,8 @@ CYAN    = (0, 255, 255)
 MAGENTA = (255, 0, 255)
 ORANGE  = (255, 165, 0)
 PURPLE  = (128, 0, 128)
+SILVER =  (192,192,192)
+BROWN =  (101,67,33)
 
 # Simulation / UI friendly colors
 BACKGROUND_COLOR = (14,0,53)      # dark space-like background
@@ -35,3 +37,30 @@ ACCENT_COLOR     = CYAN
 BODY_PRIMARY   = BLUE
 BODY_SECONDARY = RED
 BODY_TERTIARY  = GREEN
+
+######################################################################################
+
+#Gravity Variables
+G = 300
+MATERIALS = {
+    "dust" :{
+        "density" : 0.3,
+        "radius_range" :(4,8),
+        "color" : BROWN
+    },
+    "rock" :{
+        "density" : 1.0,
+        "radius_range" :(8,16),
+        "color" : SILVER
+    },
+    "planet" :{
+        "density" : 1.2,
+        "radius_range" :(16,30),
+        "color" : BLUE
+    },
+    "gaint" :{
+        "density" : 3.0,
+        "radius_range" :(30,55),
+        "color" : YELLOW
+    },
+}
