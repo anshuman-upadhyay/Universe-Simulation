@@ -103,8 +103,12 @@ MATERIALS = {
         "radius_range": (70, 150),
         "color": YELLOW
     },
+    "black_hole": {
+        "density": 500.0,
+        "radius_range": (70, 150),
+        "color": BLACK
+    },
 }
-
 
 
 

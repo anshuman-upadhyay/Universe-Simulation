@@ -65,7 +65,7 @@ def handle_events(bodies, dt):
             # Weighted material selection (many small, few large)
             material_name = random.choices(
                 population=list(C.MATERIALS.keys()),
-                weights=[600, 250, 100, 50, 1],
+                weights=[600, 250, 100, 50, 1,0.1],
                 k=1
             )[0]
 
